@@ -33,17 +33,5 @@ namespace ExtensionSystem.Controllers
 
             return BadRequest("user name or password wrong!");
         }
-
-        [Authorize]
-        [HttpGet("list")]
-        [ProducesResponseType(200, Type = typeof(List<ConsumerListAllResult>))]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> ListAll()
-        {
-            var result = await _consumerService.ListAll();
-
-            return Ok(result);
-        }
-
     }
 }
