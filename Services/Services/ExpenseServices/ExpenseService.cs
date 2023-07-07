@@ -2,6 +2,7 @@
 using Data.ExpenseRepositories;
 using Domain.Entities;
 using ExtraZone.Data.Domain.EfDbContext.EfCoreUnitOfWork;
+using Services.CacheServices.ExpencesCacheServices;
 using Services.Services.ExpenseServices.Dtos.RequestDtos;
 using Services.Services.ExpenseServices.Dtos.ResultDtos;
 
@@ -12,17 +13,19 @@ namespace Services.Services.ExpenseServices
         private readonly IExpenseRepository _expenseRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IExpenceCacheService _expenceCacheService;
 
-        public ExpenseService(IExpenseRepository expenseRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public ExpenseService(IExpenseRepository expenseRepository, IMapper mapper, IUnitOfWork unitOfWork, IExpenceCacheService expenceCacheService)
         {
             _expenseRepository = expenseRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _expenceCacheService = expenceCacheService;
         }
 
         public async Task<List<ExpenseListAllResult>> ListAll()
         {
-            var result = await _expenseRepository.FindListAsync(x => x.Status == true);
+            var result = await _expenceCacheService.GetExpenseList();
 
             return _mapper.Map<List<ExpenseListAllResult>>(result);
         }
@@ -49,6 +52,8 @@ namespace Services.Services.ExpenseServices
 
             if (result <= 0)
                 throw new Exception("Data delete error!");
+
+            await _expenceCacheService.Remove();
         }
 
         public async Task UpdateById(int id, ExpenceUpdateByIdRequest request)
@@ -67,6 +72,8 @@ namespace Services.Services.ExpenseServices
 
             if (result <= 0)
                 throw new Exception("Data update error!");
+
+            await _expenceCacheService.Remove();
         }
 
         public async Task<int> Insert(ExpenceInsertRequest request)
@@ -83,6 +90,8 @@ namespace Services.Services.ExpenseServices
 
             if (result <= 0)
                 throw new Exception("Data insert error!");
+
+            await _expenceCacheService.Remove();
 
             return entity.Id;
         }

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Core.CacheServices;
 using Data.ConsumerExpenseRepositories;
 using Data.ConsumerRepositories;
 using Data.ExpenseRepositories;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Services.CacheServices.ExpencesCacheServices;
 using Services.Services.ConsumerExpenseServices;
 using Services.Services.ConsumerSerivces;
 using Services.Services.ExpenseServices;
@@ -70,7 +72,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-
+builder.Services.AddMemoryCache();
 builder.Services.AddDbContext<ExpenseSystemDbContext>(options =>
     options.UseSqlServer("server =.\\SQLEXPRESS; database = ExpenseTracking; integrated security = true; TrustServerCertificate = True"));
 
@@ -83,6 +85,10 @@ builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddTransient<IConsumerExpenseRepository, ConsumerExpenseRepository>();
 builder.Services.AddTransient<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddTransient<IConsumerRepository, ConsumerRepository>();
+
+
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddTransient<IExpenceCacheService, ExpenceCacheService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
