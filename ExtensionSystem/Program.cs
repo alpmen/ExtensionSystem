@@ -4,11 +4,16 @@ using Data.ConsumerRepositories;
 using Data.ExpenseRepositories;
 using Domain.EFCoreDbContext;
 using ExtraZone.Data.Domain.EfDbContext.EfCoreUnitOfWork;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Services.Services.ConsumerExpenseServices;
 using Services.Services.ConsumerSerivces;
 using Services.Services.ExpenseServices;
 using Services.Services.Mappings;
+using Services.Services.TokenServices;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +22,53 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+
+    // JWT ile kimlik doðrulama yapýlandýrmasý
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token in the field below",
+        Name = "Authorization"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] { }
+            }
+        });
+});
+
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidIssuer = "https://localhost",
+        ValidAudience = "https://localhost",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("DemoProjectSecretKey")),
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 
 builder.Services.AddDbContext<ExpenseSystemDbContext>(options =>
@@ -26,6 +77,7 @@ builder.Services.AddDbContext<ExpenseSystemDbContext>(options =>
 builder.Services.AddTransient<IconsumerExpenceService, ConsumerExpenseService>();
 builder.Services.AddTransient<IExpenseService, ExpenseService>();
 builder.Services.AddTransient<IConsumerService, ConsumerService>();
+builder.Services.AddTransient<ITokenService, TokenService>();
 
 
 builder.Services.AddTransient<IConsumerExpenseRepository, ConsumerExpenseRepository>();
@@ -55,9 +107,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
+
 app.Run();
+

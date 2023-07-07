@@ -10,5 +10,6 @@ namespace Services.Services.ConsumerSerivces
         Task DeleteById(int id);
         Task UpdateById(int id, ConsumerUpdateByIdRequest request);
         Task<int> Insert(ConsumerInsertRequest request);
+        Task<bool> GetByNameandPassword(string email, string password);
     }
 }

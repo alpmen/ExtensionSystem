@@ -90,5 +90,17 @@ namespace Services.Services.ConsumerSerivces
 
             return entity.Id;
         }
+
+        public async Task<bool> GetByNameandPassword(string email, string password)
+        {
+            var result = await _consumerRepository.FindAsync(x => x.Name == email && x.Password == password);
+
+            if (result != null)
+            {
+                return true;
+            }
+            else
+                return false;
+        }
     }
 }

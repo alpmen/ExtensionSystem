@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services.Services.ExpenseServices;
 using Services.Services.ExpenseServices.Dtos.RequestDtos;
 using Services.Services.ExpenseServices.Dtos.ResultDtos;
@@ -7,6 +8,7 @@ namespace ExtensionSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ExpenceController : ControllerBase
     {
         private readonly IExpenseService _expenseService;
