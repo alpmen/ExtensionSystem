@@ -1,6 +1,7 @@
 ﻿namespace Services.Services.LogServices
 {
-    public class ILogService
+    public interface ILogService
     {
+        Task AddLog(string entity, string exception);
     }
 }

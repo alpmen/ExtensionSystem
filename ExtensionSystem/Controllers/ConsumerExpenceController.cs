@@ -8,7 +8,6 @@ namespace ExtensionSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
     public class ConsumerExpenceController : ControllerBase
     {
         private readonly IconsumerExpenceService _consumerExpenceService;
@@ -18,6 +17,7 @@ namespace ExtensionSystem.Controllers
             _consumerExpenceService = consumerExpenceService;
         }
 
+        [Authorize]
         [HttpGet("list")]
         [ProducesResponseType(200, Type = typeof(List<ConsumerExpenseListAllResult>))]
         [ProducesResponseType(500)]
@@ -28,6 +28,7 @@ namespace ExtensionSystem.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(int))]
         [ProducesResponseType(400)]
@@ -40,6 +41,7 @@ namespace ExtensionSystem.Controllers
             return Created("", result);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -52,6 +54,7 @@ namespace ExtensionSystem.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -64,6 +67,7 @@ namespace ExtensionSystem.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(ConsumerExpenseGetByIdResult))]
         [ProducesResponseType(404)]
@@ -75,6 +79,7 @@ namespace ExtensionSystem.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("getTotalCostByConsumerId/{consumerId}")]
         [ProducesResponseType(201, Type = typeof(int))]
         [ProducesResponseType(400)]
@@ -87,6 +92,7 @@ namespace ExtensionSystem.Controllers
             return Ok(result);
         }
 
+        
         [HttpGet("listTotal")]
         [ProducesResponseType(201, Type = typeof(AllTotalDataModel))]
         [ProducesResponseType(400)]

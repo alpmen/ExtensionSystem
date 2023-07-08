@@ -2,11 +2,12 @@
 using Data.ConsumerExpenseRepositories;
 using Domain.Entities;
 using ExtraZone.Data.Domain.EfDbContext.EfCoreUnitOfWork;
+using MyMessageApp.Core.Exceptions;
 using Services.CacheServices.ConsumerExpenceCacheServices;
 using Services.Services.ConsumerExpenseServices.Dtos.RequestDtos;
 using Services.Services.ConsumerExpenseServices.Dtos.ResultDtos;
 using Services.Services.ConsumerSerivces;
-using System.Collections.Generic;
+using Services.Services.LogServices;
 
 namespace Services.Services.ConsumerExpenseServices
 {
@@ -17,14 +18,16 @@ namespace Services.Services.ConsumerExpenseServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConsumerExpenceCacheService _consumerExpenceCacheService;
         private readonly IConsumerService _consumerService;
+        private readonly ILogService _logService;
 
-        public ConsumerExpenseService(IConsumerExpenseRepository consumerExpenseRepository, IMapper mapper, IUnitOfWork unitOfWork, IConsumerExpenceCacheService consumerExpenceCacheService, IConsumerService consumerService)
+        public ConsumerExpenseService(IConsumerExpenseRepository consumerExpenseRepository, IMapper mapper, IUnitOfWork unitOfWork, IConsumerExpenceCacheService consumerExpenceCacheService, IConsumerService consumerService, ILogService logService)
         {
             _consumerExpenseRepository = consumerExpenseRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _consumerExpenceCacheService = consumerExpenceCacheService;
             _consumerService = consumerService;
+            _logService = logService;
         }
 
         public async Task<List<ConsumerExpenseListAllResult>> ListAll()
@@ -46,7 +49,10 @@ namespace Services.Services.ConsumerExpenseServices
             ConsumerExpense entity = await _consumerExpenseRepository.FindAsync(x => x.Id == id);
 
             if (entity == null)
+            {
+                await _logService.AddLog("ConsumerExpences", "Data not found");
                 throw new Exception("Data not found");
+            }
 
             entity.Status = false;
 
@@ -66,7 +72,10 @@ namespace Services.Services.ConsumerExpenseServices
             ConsumerExpense entity = await _consumerExpenseRepository.FindAsync(x => x.Id == id);
 
             if (entity == null)
+            {
+                await _logService.AddLog("ConsumerExpences", "Data not found");
                 throw new Exception("Data not found");
+            }
 
             var oldConsumerId = entity.ConsumerId;
             entity.ExpenseId = request.ExpenseId;
@@ -81,6 +90,7 @@ namespace Services.Services.ConsumerExpenseServices
 
             if (result <= 0)
                 throw new Exception("Data update error!");
+
 
             await _consumerExpenceCacheService.Remove();
             await _consumerExpenceCacheService.RemoveByConsumerId(entity.ConsumerId);

@@ -7,6 +7,7 @@ using Services.Services.ConsumerExpenseServices.Dtos.RequestDtos;
 using Services.Services.ConsumerExpenseServices.Dtos.ResultDtos;
 using Services.Services.ConsumerSerivces.Dtos.RequestDtos;
 using Services.Services.ConsumerSerivces.Dtos.ResultDtos;
+using Services.Services.LogServices;
 
 namespace Services.Services.ConsumerSerivces
 {
@@ -16,13 +17,15 @@ namespace Services.Services.ConsumerSerivces
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConsumerCacheServicecs _consumerCacheServicecs;
+        private readonly ILogService _logService;
 
-        public ConsumerService(IConsumerRepository consumerRepository, IMapper mapper, IUnitOfWork unitOfWork, IConsumerCacheServicecs consumerCacheServicecs)
+        public ConsumerService(IConsumerRepository consumerRepository, IMapper mapper, IUnitOfWork unitOfWork, IConsumerCacheServicecs consumerCacheServicecs, ILogService logService)
         {
             _consumerRepository = consumerRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _consumerCacheServicecs = consumerCacheServicecs;
+            _logService = logService;
         }
 
         public async Task<List<ConsumerListAllResult>> ListAll()
@@ -44,7 +47,10 @@ namespace Services.Services.ConsumerSerivces
             Consumer entity = await _consumerRepository.FindAsync(x => x.Id == id);
 
             if (entity == null)
+            {
+                await _logService.AddLog("ConsumerExpences", "Data not found");
                 throw new Exception("Data not found");
+            }
 
             entity.Status = false;
 
@@ -63,7 +69,10 @@ namespace Services.Services.ConsumerSerivces
             Consumer entity = await _consumerRepository.FindAsync(x => x.Id == id);
 
             if (entity == null)
+            {
+                await _logService.AddLog("ConsumerExpences", "Data not found");
                 throw new Exception("Data not found");
+            }
 
             entity.Name = request.Name;
             entity.Password = request.Password;

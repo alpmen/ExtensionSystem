@@ -8,5 +8,6 @@ namespace Domain.Entities
         public int Id { get; set; }
         public string Entity { get; set; }
         public string Exception { get; set; }
+        public DateTime Date { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using Core.CacheServices;
 using Data.ConsumerExpenseRepositories;
 using Data.ConsumerRepositories;
 using Data.ExpenseRepositories;
+using Data.LogRepositories;
 using Domain.EFCoreDbContext;
 using ExtraZone.Data.Domain.EfDbContext.EfCoreUnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,6 +17,7 @@ using Services.CacheServices.ExpencesCacheServices;
 using Services.Services.ConsumerExpenseServices;
 using Services.Services.ConsumerSerivces;
 using Services.Services.ExpenseServices;
+using Services.Services.LogServices;
 using Services.Services.Mappings;
 using Services.Services.TokenServices;
 using System.Text;
@@ -83,11 +85,13 @@ builder.Services.AddTransient<IconsumerExpenceService, ConsumerExpenseService>()
 builder.Services.AddTransient<IExpenseService, ExpenseService>();
 builder.Services.AddTransient<IConsumerService, ConsumerService>();
 builder.Services.AddTransient<ITokenService, TokenService>();
+builder.Services.AddTransient<ILogService, LogService>();
 
 
 builder.Services.AddTransient<IConsumerExpenseRepository, ConsumerExpenseRepository>();
 builder.Services.AddTransient<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddTransient<IConsumerRepository, ConsumerRepository>();
+builder.Services.AddTransient<ILogRepository, LogRepository>();
 
 
 builder.Services.AddScoped<ICacheService, CacheService>();

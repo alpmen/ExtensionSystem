@@ -5,6 +5,7 @@ using ExtraZone.Data.Domain.EfDbContext.EfCoreUnitOfWork;
 using Services.CacheServices.ExpencesCacheServices;
 using Services.Services.ExpenseServices.Dtos.RequestDtos;
 using Services.Services.ExpenseServices.Dtos.ResultDtos;
+using Services.Services.LogServices;
 
 namespace Services.Services.ExpenseServices
 {
@@ -14,13 +15,15 @@ namespace Services.Services.ExpenseServices
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IExpenceCacheService _expenceCacheService;
+        private readonly ILogService _logService;
 
-        public ExpenseService(IExpenseRepository expenseRepository, IMapper mapper, IUnitOfWork unitOfWork, IExpenceCacheService expenceCacheService)
+        public ExpenseService(IExpenseRepository expenseRepository, IMapper mapper, IUnitOfWork unitOfWork, IExpenceCacheService expenceCacheService, ILogService logService)
         {
             _expenseRepository = expenseRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _expenceCacheService = expenceCacheService;
+            _logService = logService;
         }
 
         public async Task<List<ExpenseListAllResult>> ListAll()
@@ -42,7 +45,10 @@ namespace Services.Services.ExpenseServices
             Expense entity = await _expenseRepository.FindAsync(x => x.Id == id);
 
             if (entity == null)
+            {
+                await _logService.AddLog("ConsumerExpences", "Data not found");
                 throw new Exception("Data not found");
+            }
 
             entity.Status = false;
 
@@ -61,7 +67,10 @@ namespace Services.Services.ExpenseServices
             Expense entity = await _expenseRepository.FindAsync(x => x.Id == id);
 
             if (entity == null)
+            {
+                await _logService.AddLog("ConsumerExpences", "Data not found");
                 throw new Exception("Data not found");
+            }
 
             entity.Name = request.Name;
             entity.Status = request.Status;
