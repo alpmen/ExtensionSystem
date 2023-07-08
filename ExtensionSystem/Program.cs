@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Services.CacheServices.ConsumerCacheServices;
+using Services.CacheServices.ConsumerExpenceCacheServices;
 using Services.CacheServices.ExpencesCacheServices;
 using Services.Services.ConsumerExpenseServices;
 using Services.Services.ConsumerSerivces;
@@ -89,6 +91,8 @@ builder.Services.AddTransient<IConsumerRepository, ConsumerRepository>();
 
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddTransient<IExpenceCacheService, ExpenceCacheService>();
+builder.Services.AddTransient<IConsumerCacheServicecs, ConsumerCacheService>();
+builder.Services.AddTransient<IConsumerExpenceCacheService, ConsumerExpenceCacheService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

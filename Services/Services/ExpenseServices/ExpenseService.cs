@@ -27,7 +27,7 @@ namespace Services.Services.ExpenseServices
         {
             var result = await _expenceCacheService.GetExpenseList();
 
-            return _mapper.Map<List<ExpenseListAllResult>>(result);
+            return result;
         }
 
         public async Task<List<ExpenseGetByIdResult>> GetById(int id)

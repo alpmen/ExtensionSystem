@@ -2,6 +2,7 @@
 using Data.ConsumerExpenseRepositories;
 using Domain.Entities;
 using ExtraZone.Data.Domain.EfDbContext.EfCoreUnitOfWork;
+using Services.CacheServices.ConsumerExpenceCacheServices;
 using Services.Services.ConsumerExpenseServices.Dtos.RequestDtos;
 using Services.Services.ConsumerExpenseServices.Dtos.ResultDtos;
 
@@ -12,19 +13,21 @@ namespace Services.Services.ConsumerExpenseServices
         private readonly IConsumerExpenseRepository _consumerExpenseRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConsumerExpenceCacheService _consumerExpenceCacheService;
 
-        public ConsumerExpenseService(IConsumerExpenseRepository consumerExpenseRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public ConsumerExpenseService(IConsumerExpenseRepository consumerExpenseRepository, IMapper mapper, IUnitOfWork unitOfWork, IConsumerExpenceCacheService consumerExpenceCacheService)
         {
             _consumerExpenseRepository = consumerExpenseRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _consumerExpenceCacheService = consumerExpenceCacheService;
         }
 
         public async Task<List<ConsumerExpenseListAllResult>> ListAll()
         {
-            var result = await _consumerExpenseRepository.FindListAsync(x => x.Status == true);
+            var result = await _consumerExpenceCacheService.GetConsumerExpenceList();
 
-            return _mapper.Map<List<ConsumerExpenseListAllResult>>(result);
+            return result;
         }
 
         public async Task<List<ConsumerExpenseGetByIdResult>> GetById(int id)
@@ -49,6 +52,8 @@ namespace Services.Services.ConsumerExpenseServices
 
             if (result <= 0)
                 throw new Exception("Data delete error!");
+
+            await _consumerExpenceCacheService.Remove();
         }
 
         public async Task UpdateById(int id, ConsumerExpenseUpdateByIdRequest request)
@@ -70,6 +75,8 @@ namespace Services.Services.ConsumerExpenseServices
 
             if (result <= 0)
                 throw new Exception("Data update error!");
+
+            await _consumerExpenceCacheService.Remove();
         }
 
         public async Task<int> Insert(ConsumerExpenseInsertRequest request)
@@ -89,6 +96,8 @@ namespace Services.Services.ConsumerExpenseServices
 
             if (result <= 0)
                 throw new Exception("Data insert error!");
+
+            await _consumerExpenceCacheService.Remove();
 
             return entity.Id;
         }

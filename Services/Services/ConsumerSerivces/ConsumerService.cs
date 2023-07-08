@@ -2,6 +2,7 @@
 using Data.ConsumerRepositories;
 using Domain.Entities;
 using ExtraZone.Data.Domain.EfDbContext.EfCoreUnitOfWork;
+using Services.CacheServices.ConsumerCacheServices;
 using Services.Services.ConsumerExpenseServices.Dtos.RequestDtos;
 using Services.Services.ConsumerExpenseServices.Dtos.ResultDtos;
 using Services.Services.ConsumerSerivces.Dtos.RequestDtos;
@@ -14,19 +15,21 @@ namespace Services.Services.ConsumerSerivces
         private readonly IConsumerRepository _consumerRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConsumerCacheServicecs _consumerCacheServicecs;
 
-        public ConsumerService(IConsumerRepository consumerRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public ConsumerService(IConsumerRepository consumerRepository, IMapper mapper, IUnitOfWork unitOfWork, IConsumerCacheServicecs consumerCacheServicecs)
         {
             _consumerRepository = consumerRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _consumerCacheServicecs = consumerCacheServicecs;
         }
 
         public async Task<List<ConsumerListAllResult>> ListAll()
         {
-            var result = await _consumerRepository.FindListAsync(x => x.Status == true);
+            var result = await _consumerCacheServicecs.GetConsumerList();
 
-            return _mapper.Map<List<ConsumerListAllResult>>(result);
+            return result;
         }
 
         public async Task<List<ConsumerGetByIdResult>> GetById(int id)
@@ -51,6 +54,8 @@ namespace Services.Services.ConsumerSerivces
 
             if (result <= 0)
                 throw new Exception("Data delete error!");
+
+            await _consumerCacheServicecs.Remove();
         }
 
         public async Task UpdateById(int id, ConsumerUpdateByIdRequest request)
@@ -70,6 +75,8 @@ namespace Services.Services.ConsumerSerivces
 
             if (result <= 0)
                 throw new Exception("Data update error!");
+
+            await _consumerCacheServicecs.Remove();
         }
 
         public async Task<int> Insert(ConsumerInsertRequest request)
@@ -87,6 +94,8 @@ namespace Services.Services.ConsumerSerivces
 
             if (result <= 0)
                 throw new Exception("Data insert error!");
+
+            await _consumerCacheServicecs.Remove();
 
             return entity.Id;
         }
