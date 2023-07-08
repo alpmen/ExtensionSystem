@@ -6,5 +6,7 @@ namespace Services.CacheServices.ConsumerExpenceCacheServices
     {
         Task<List<ConsumerExpenseListAllResult>> GetConsumerExpenceList();
         Task Remove();
+        Task<int> GetConsumerTotalCostByConsumerId(int consumerId);
+        Task RemoveByConsumerId(int consumerId);
     }
 }

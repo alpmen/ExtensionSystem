@@ -54,6 +54,7 @@ namespace Services.Services.ConsumerExpenseServices
                 throw new Exception("Data delete error!");
 
             await _consumerExpenceCacheService.Remove();
+            await _consumerExpenceCacheService.RemoveByConsumerId(entity.ConsumerId);
         }
 
         public async Task UpdateById(int id, ConsumerExpenseUpdateByIdRequest request)
@@ -63,6 +64,7 @@ namespace Services.Services.ConsumerExpenseServices
             if (entity == null)
                 throw new Exception("Data not found");
 
+            var oldConsumerId = entity.ConsumerId;
             entity.ExpenseId = request.ExpenseId;
             entity.ConsumerId = request.ConsumerId;
             entity.Date = request.Date;
@@ -77,6 +79,8 @@ namespace Services.Services.ConsumerExpenseServices
                 throw new Exception("Data update error!");
 
             await _consumerExpenceCacheService.Remove();
+            await _consumerExpenceCacheService.RemoveByConsumerId(entity.ConsumerId);
+            await _consumerExpenceCacheService.RemoveByConsumerId(oldConsumerId);
         }
 
         public async Task<int> Insert(ConsumerExpenseInsertRequest request)
@@ -98,22 +102,27 @@ namespace Services.Services.ConsumerExpenseServices
                 throw new Exception("Data insert error!");
 
             await _consumerExpenceCacheService.Remove();
+            await _consumerExpenceCacheService.RemoveByConsumerId(entity.ConsumerId);
 
             return entity.Id;
         }
 
         public async Task<int> TotalCostByConsumerId(int consumerId)
         {
-            var costs = (await _consumerExpenseRepository.FindListAsync(x => x.ConsumerId == consumerId)).Select(x => x.Cost).ToList();
+            var total = await _consumerExpenceCacheService.GetConsumerTotalCostByConsumerId(consumerId);
 
-            var totalCost = 0;
+            return total;
 
-            foreach (var cost in costs)
-            {
-                totalCost += cost;
-            }
+            //var costs = (await _consumerExpenseRepository.FindListAsync(x => x.ConsumerId == consumerId)).Select(x => x.Cost).ToList();
 
-            return totalCost;
+            //var totalCost = 0;
+
+            //foreach (var cost in costs)
+            //{
+            //    totalCost += cost;
+            //}
+
+            //return totalCost;
         }
 
     }

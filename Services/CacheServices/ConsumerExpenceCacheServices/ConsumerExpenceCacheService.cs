@@ -53,5 +53,47 @@ namespace Services.CacheServices.ConsumerExpenceCacheServices
                 throw new Exception("Delete Error");
             }
         }
+
+        public async Task<int> GetConsumerTotalCostByConsumerId(int consumerId)
+        {
+            var key = String.Format("{0}_{1}_{2}", "General", "ConsumerExpences", consumerId);
+
+            var cost = 0;
+
+            int cachedData = _cacheManager.Get<int>(key);
+
+            if (cachedData != null && cachedData != 0)
+            {
+                cost = cachedData;
+            }
+            else
+            {
+                var costs = (await _consumerExpenseRepository.FindListAsync(x => x.ConsumerId == consumerId)).Select(x => x.Cost).ToList();
+
+                foreach (var cst in costs)
+                {
+                    cost += cst;
+                }
+
+                _cacheManager.Set(key, cost);
+            }
+
+            return cost;
+        }
+
+        public async Task RemoveByConsumerId(int consumerId)
+        {
+            string cacheKey = String.Format("{0}_{1}_{2}", "General", "ConsumerExpences", consumerId);
+
+            try
+            {
+                _cacheManager.Clear(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Delete Error");
+            }
+        }
+
     }
 }
