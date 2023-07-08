@@ -25,5 +25,6 @@ namespace Domain.EFCoreDbContext
         public DbSet<Consumer> Consumers { get; set; }
         public DbSet<ConsumerExpense> ConsumerExpenses { get; set; }
         public DbSet<Expense> Expenses { get; set; }
+        public DbSet<SystemLog> SystemLogs { get; set; }
     }
 }

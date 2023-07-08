@@ -5,6 +5,8 @@ using ExtraZone.Data.Domain.EfDbContext.EfCoreUnitOfWork;
 using Services.CacheServices.ConsumerExpenceCacheServices;
 using Services.Services.ConsumerExpenseServices.Dtos.RequestDtos;
 using Services.Services.ConsumerExpenseServices.Dtos.ResultDtos;
+using Services.Services.ConsumerSerivces;
+using System.Collections.Generic;
 
 namespace Services.Services.ConsumerExpenseServices
 {
@@ -14,13 +16,15 @@ namespace Services.Services.ConsumerExpenseServices
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConsumerExpenceCacheService _consumerExpenceCacheService;
+        private readonly IConsumerService _consumerService;
 
-        public ConsumerExpenseService(IConsumerExpenseRepository consumerExpenseRepository, IMapper mapper, IUnitOfWork unitOfWork, IConsumerExpenceCacheService consumerExpenceCacheService)
+        public ConsumerExpenseService(IConsumerExpenseRepository consumerExpenseRepository, IMapper mapper, IUnitOfWork unitOfWork, IConsumerExpenceCacheService consumerExpenceCacheService, IConsumerService consumerService)
         {
             _consumerExpenseRepository = consumerExpenseRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _consumerExpenceCacheService = consumerExpenceCacheService;
+            _consumerService = consumerService;
         }
 
         public async Task<List<ConsumerExpenseListAllResult>> ListAll()
@@ -123,6 +127,32 @@ namespace Services.Services.ConsumerExpenseServices
             //}
 
             //return totalCost;
+        }
+
+        public async Task<List<AllTotalDataModel>> AllTotalCost()
+        {
+            var users = await _consumerService.ListAll();
+
+            List<AllTotalDataModel> data = new List<AllTotalDataModel>();
+
+            foreach (var user in users)
+            {
+                var costs = (await _consumerExpenseRepository.FindListAsync(x => x.ConsumerId == user.Id)).Select(x => x.Cost).ToList();
+
+                var totalcost = 0;
+                foreach (var cst in costs)
+                {
+                    totalcost += cst;
+                }
+                AllTotalDataModel model = new AllTotalDataModel
+                {
+                    TotalCost = totalcost,
+                    UserName = user.Name
+                };
+                data.Add(model);
+            }
+
+            return data;
         }
 
     }

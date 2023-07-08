@@ -12,5 +12,6 @@ namespace Services.Services.ConsumerExpenseServices
         Task UpdateById(int id, ConsumerExpenseUpdateByIdRequest request);
         Task<int> Insert(ConsumerExpenseInsertRequest request);
         Task<int> TotalCostByConsumerId(int consumerId);
+        Task<List<AllTotalDataModel>> AllTotalCost();
     }
 }

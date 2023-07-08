@@ -8,7 +8,7 @@ namespace ExtensionSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class ConsumerExpenceController : ControllerBase
     {
         private readonly IconsumerExpenceService _consumerExpenceService;
@@ -83,6 +83,18 @@ namespace ExtensionSystem.Controllers
         public async Task<IActionResult> TotalCostByConsumerId(int consumerId)
         {
             int result = await _consumerExpenceService.TotalCostByConsumerId(consumerId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("listTotal")]
+        [ProducesResponseType(201, Type = typeof(AllTotalDataModel))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> AllTotalCost()
+        {
+            var result = await _consumerExpenceService.AllTotalCost();
 
             return Ok(result);
         }

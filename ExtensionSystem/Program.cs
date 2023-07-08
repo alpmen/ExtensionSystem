@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MyMessageApp.Middlewares;
 using Services.CacheServices.ConsumerCacheServices;
 using Services.CacheServices.ConsumerExpenceCacheServices;
 using Services.CacheServices.ExpencesCacheServices;
@@ -96,7 +97,6 @@ builder.Services.AddTransient<IConsumerExpenceCacheService, ConsumerExpenceCache
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-
 var configuration = new MapperConfiguration(opt =>
 {
     opt.AddProfile(new ConsumerExpencesProfile());
@@ -116,6 +116,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
